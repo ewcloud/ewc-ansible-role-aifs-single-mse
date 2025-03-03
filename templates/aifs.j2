@@ -1,0 +1,54 @@
+#!/bin/bash
+_package_prefix=$(dirname $(dirname $(realpath -s $BASH_SOURCE)))
+_me=$(basename $0)
+
+ANEMOI_INFERENCE=$_package_prefix/bin/anemoi-inference
+
+usage() {
+    echo "Usage: $_me [run|retrieve|json2mars|info|help]"
+}
+
+inference_with_defaults() {
+    CMD=$1
+    shift
+    exec $ANEMOI_INFERENCE $CMD --defaults $_package_prefix/share/aifs/$_me.yml "$@"
+}
+
+inference_without_defaults() {
+    exec $ANEMOI_INFERENCE "$@"
+}
+
+info(){
+    if [ -f "$_package_prefix/aifs/share/VERSION.txt" ]; then
+        cat "$_package_prefix/aifs/share/VERSION.txt"
+    fi
+
+    echo
+    echo "Inference config:"
+    echo
+    cat $_package_prefix/share/aifs/$_me.yaml
+    echo
+
+    if [ -d "$_package_prefix/share/aifs/training-configs" ]; then
+        echo "Training configs: $_package_prefix/share/aifs/training-configs/"
+    fi
+    echo
+    echo "Environment:"
+    echo
+    pip freeze | egrep '(aifs|anemoi|earthkit|torch|eccodes|flash-attn)' | sort
+}
+
+if [ ! -z "$1" ]; then
+    case $1 in
+        run)   inference_with_defaults "$@"  ;;
+        retrieve) inference_with_defaults "$@" ;;
+        json2mars) shift; anemoi-utils requests "$@" ;;
+        info)    info ;;
+        help|-h|--help)   usage ;;
+        *)  inference_without_defaults "$@";;
+    esac  
+    exit 0
+else
+    usage
+    exit 0
+fi

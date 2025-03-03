@@ -1,0 +1,17 @@
+description: | 
+  AIFS-single 1.0
+
+  AIFS-single 1.0 improves performance compared to previous AIFS 0.2.1 for variables like total and convective precipitation, and overall model performance in the upper levels of the atmosphere. 
+  It has 13 pressure-levels and a resolution of 28 km (0.25°)º. It includes new variables like 100 meter winds and other land variables such as soil-moisture, soil-temperature, snow-fall or solar-radiation.
+
+post_processors: 
+  - accumulate_from_start_of_forecast
+output:
+  grib:
+    encoding: 
+      class: ai
+      type: fc
+      stream: oper
+      generatingProcessIdentifier: 3
+
+checkpoint: "{{ aifs_single_mse_env_path }}/share/aifs/{{aifs_single_mse_checkpoint | basename }}"

@@ -1,0 +1,84 @@
+---
+- name: Wipe existing conda environment
+  ansible.builtin.file:
+    path: "{{ aifs_single_mse_env_path }}"
+    state: absent
+  when: aifs_single_mse_env_wipe
+
+- name: Copy conda environment description
+  ansible.builtin.copy:
+    src: "env.yml"
+    dest: /tmp/{{ aifs_single_mse_env_name }}.yml
+    mode: "644"
+  register: aifs_single_mse_env_updated
+
+- name: Create conda environment
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.shell: |
+    source /etc/profile.d/conda.sh
+    source /etc/profile.d/mamba.sh
+    export PIP_NO_CACHE_DIR=false
+    mamba env create -f /tmp/{{ aifs_single_mse_env_name }}.yml -p {{ aifs_single_mse_env_path }} && mamba clean --all -y
+  args:
+    executable: /bin/bash
+    creates: "{{ aifs_single_mse_env_path }}"
+
+  register: aifs_single_mse_env_create
+
+- name: Update conda environment
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.shell: |
+    source /etc/profile.d/conda.sh
+    source /etc/profile.d/mamba.sh
+    export PIP_NO_CACHE_DIR=false
+    mamba env update --prune -f /tmp/{{ aifs_single_mse_env_name }}.yml -p {{ aifs_single_mse_env_path }} && mamba clean --all -y
+  args:
+    executable: /bin/bash
+  when: not aifs_single_mse_env_create.changed and aifs_single_mse_env_updated.changed
+
+- name: Install flash_attn
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.pip:
+    name: flash_attn
+    executable: "{{ aifs_single_mse_env_path }}/bin/pip3"
+    extra_args: --no-build-isolation --no-cache-dir
+  environment:
+    PATH: "{{ aifs_single_mse_env_path }}/bin/:{{ ansible_env.PATH }}"
+  
+- name: Ensure checkpoint dir exists
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.file:
+    path: "{{ aifs_single_mse_env_path }}/share/aifs"
+    state: directory
+    mode: "755"
+
+- name: Download model checkpoint
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.get_url:
+    url: "{{ aifs_single_mse_checkpoint }}" 
+    dest: "{{ aifs_single_mse_env_path }}/share/aifs/{{ aifs_single_mse_checkpoint | basename }}"
+    mode: "644"
+
+- name: Install config wrapper
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.template:
+    src: "config.yml.j2"
+    dest: "{{ aifs_single_mse_env_path }}/share/aifs/aifs-single-mse.yml"
+    mode: "644"
+
+- name: Install model wrapper
+  become_user: "{{ conda_user | default(root)}}"
+  ansible.builtin.template:
+    src: "aifs.j2"
+    dest: "{{ aifs_single_mse_env_path }}/bin/aifs-single-mse"
+    mode: "755"
+
+- name: Make ipykernel available for Jupyter
+  ansible.builtin.shell: |
+    source /etc/profile.d/conda.sh
+    source /etc/profile.d/mamba.sh
+    mamba run -p {{ aifs_single_mse_env_path }} python3 -m ipykernel install --prefix=/usr/local --name="{{ aifs_single_mse_env_name }}" --display-name="{{ aifs_single_mse_env_name }}" --env PATH "{{ aifs_single_mse_env_path}}/bin:\$PATH"
+  args:
+    executable: /bin/bash
+    creates: /usr/local/share/jupyter/kernels/{{ aifs_single_mse_env_name }}
+  when: aifs_single_mse_create_ipykernel

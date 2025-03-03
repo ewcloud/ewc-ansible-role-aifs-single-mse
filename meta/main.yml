@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: Xavier Abellan
+  description: Install AIFS single MSE Data-Driven Model inside a conda environment
+  company: ECMWF
+  license: Apache 2.0
+  min_ansible_version: 2.1
+  galaxy_tags: []
+dependencies:
+  - ewc-ansible-role-conda
