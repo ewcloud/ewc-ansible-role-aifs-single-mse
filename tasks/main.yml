@@ -40,10 +40,11 @@
   become_user: "{{ conda_user | default(root)}}"
   ansible.builtin.pip:
     name: flash_attn
-    executable: "{{ aifs_single_mse_env_path }}/bin/pip3"
+    # executable: "{{ aifs_single_mse_env_path }}/bin/pip3"
+    executable: "{{ conda_prefix }}/bin/mamba run -p {{ aifs_single_mse_env_path }} pip3"
     extra_args: --no-build-isolation --no-cache-dir
-  environment:
-    PATH: "{{ aifs_single_mse_env_path }}/bin/:{{ ansible_env.PATH }}"
+  # environment:
+  #   PATH: "{{ aifs_single_mse_env_path }}/bin/:{{ ansible_env.PATH }}"
   
 - name: Ensure checkpoint dir exists
   become_user: "{{ conda_user | default(root)}}"
