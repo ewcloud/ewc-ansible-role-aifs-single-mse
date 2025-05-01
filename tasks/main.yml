@@ -18,7 +18,7 @@
     source /etc/profile.d/conda.sh
     source /etc/profile.d/mamba.sh
     export PIP_NO_CACHE_DIR=false
-    mamba env create -f /tmp/{{ aifs_single_mse_env_name }}.yml -p {{ aifs_single_mse_env_path }} && mamba clean --all -y
+    mamba env create -y -f /tmp/{{ aifs_single_mse_env_name }}.yml -p {{ aifs_single_mse_env_path }} && mamba clean --all -y
   args:
     executable: /bin/bash
     creates: "{{ aifs_single_mse_env_path }}"
@@ -31,7 +31,7 @@
     source /etc/profile.d/conda.sh
     source /etc/profile.d/mamba.sh
     export PIP_NO_CACHE_DIR=false
-    mamba env update --prune -f /tmp/{{ aifs_single_mse_env_name }}.yml -p {{ aifs_single_mse_env_path }} && mamba clean --all -y
+    mamba env update --prune -y -f /tmp/{{ aifs_single_mse_env_name }}.yml -p {{ aifs_single_mse_env_path }} && mamba clean --all -y
   args:
     executable: /bin/bash
   when: not aifs_single_mse_env_create.changed and aifs_single_mse_env_updated.changed
