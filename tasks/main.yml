@@ -42,7 +42,7 @@
     source /etc/profile.d/conda.sh
     source /etc/profile.d/mamba.sh
     export PIP_NO_CACHE_DIR=false
-    pip3 install --no-build-isolation --no-cache-dir flash_attn
+    mamba run -p {{ aifs_single_mse_env_path }} pip3 install --no-build-isolation --no-cache-dir flash_attn
   args:
     executable: /bin/bash
   # ansible.builtin.pip:
