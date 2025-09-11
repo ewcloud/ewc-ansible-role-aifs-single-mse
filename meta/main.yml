@@ -7,4 +7,4 @@ galaxy_info:
   min_ansible_version: "2.1"
   galaxy_tags: []
 dependencies:
-  - role: "ewc-ansible-role-conda-1.0"
+  - role: "ewc-ansible-role-conda-1.1"
