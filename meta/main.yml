@@ -4,7 +4,7 @@ galaxy_info:
   description: Install AIFS single MSE Data-Driven Model inside a conda environment
   company: ECMWF
   license: Apache 2.0
-  min_ansible_version: 2.1
+  min_ansible_version: "2.1"
   galaxy_tags: []
 dependencies:
-  - ewc-ansible-role-conda
+  - role: "ewc-ansible-role-conda-1.0"

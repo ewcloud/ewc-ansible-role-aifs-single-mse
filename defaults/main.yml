@@ -1,6 +1,6 @@
 ---
-aifs_single_mse_env_wipe: no
+aifs_single_mse_env_wipe: false
 aifs_single_mse_env_name: aifs-single-mse
 aifs_single_mse_env_path: "{{ conda_prefix }}/envs/{{ aifs_single_mse_env_name }}"
 aifs_single_mse_checkpoint: https://huggingface.co/ecmwf/aifs-single-1.0/resolve/main/aifs-single-mse-1.0.ckpt
-aifs_single_mse_create_ipykernel: yes
+aifs_single_mse_create_ipykernel: true
